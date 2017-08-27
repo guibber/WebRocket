@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>70779cae-a549-4845-89a7-9cf6a6e90fa9</ProjectGuid>
+    <ProjectGuid>{70779CAE-A549-4845-89A7-9CF6A6E90FA9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WebRocket</RootNamespace>
@@ -30,24 +30,43 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System"/>
-    
-    <Reference Include="System.Core"/>
-    <Reference Include="System.Xml.Linq"/>
-    <Reference Include="System.Data.DataSetExtensions"/>
-    
-    
-    <Reference Include="Microsoft.CSharp"/>
-    
-    <Reference Include="System.Data"/>
-    
-    <Reference Include="System.Net.Http"/>
-    
-    <Reference Include="System.Xml"/>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.WebSockets, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.WebSockets.4.3.0\lib\net46\System.Net.WebSockets.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="EqualsOverride.cs" />
+    <Compile Include="HttpListenerResponse.cs" />
+    <Compile Include="IRocket.cs" />
+    <Compile Include="IRocketAcceptor.cs" />
+    <Compile Include="IRocketListener.cs" />
+    <Compile Include="Rocket.cs" />
+    <Compile Include="RocketAcceptor.cs" />
+    <Compile Include="RocketListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RocketResult.cs" />
+    <Compile Include="Wrappers\HttpListener.cs" />
+    <Compile Include="Wrappers\HttpListenerContext.cs" />
+    <Compile Include="Wrappers\HttpListenerWebSocketContext.cs" />
+    <Compile Include="Wrappers\IHttpListenerContext.cs" />
+    <Compile Include="Wrappers\IHttpListenerResponse.cs" />
+    <Compile Include="Wrappers\IHttpListenerWebSocketContext.cs" />
+    <Compile Include="Wrappers\IHttpListerner.cs" />
+    <Compile Include="Wrappers\IWebSocket.cs" />
+    <Compile Include="Wrappers\IWebSocketReceiveResult.cs" />
+    <Compile Include="Wrappers\WebSocket.cs" />
+    <Compile Include="Wrappers\WebSocketReceiveResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
- </Project>
+</Project>
