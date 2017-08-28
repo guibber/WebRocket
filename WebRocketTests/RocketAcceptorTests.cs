@@ -11,15 +11,6 @@ using WebRocket.Wrappers;
 namespace WebRocketTests {
   [TestFixture]
   public class RocketAcceptorTests : BaseUnitTest {
-    [SetUp]
-    public void DoSetup() {
-      mListenerContext = Mock<IHttpListenerContext>();
-      mAcceptor = new RocketAcceptor();
-    }
-
-    private RocketAcceptor mAcceptor;
-    private Mock<IHttpListenerContext> mListenerContext;
-
     [Test]
     public async Task TestAcceptAsync() {
       var webSocketContext = Mock<IHttpListenerWebSocketContext>();
@@ -52,5 +43,14 @@ namespace WebRocketTests {
         Assert.False(stream.CanRead);
       }
     }
+
+    [SetUp]
+    public void DoSetup() {
+      mListenerContext = Mock<IHttpListenerContext>();
+      mAcceptor = new RocketAcceptor();
+    }
+
+    private RocketAcceptor mAcceptor;
+    private Mock<IHttpListenerContext> mListenerContext;
   }
 }
