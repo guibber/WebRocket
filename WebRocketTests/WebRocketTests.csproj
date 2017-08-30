@@ -58,6 +58,7 @@
     <Compile Include="RocketListenerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RocketResultTests.cs" />
+    <Compile Include="ClientRocketTests.cs" />
     <Compile Include="RocketTests.cs" />
   </ItemGroup>
   <ItemGroup>
