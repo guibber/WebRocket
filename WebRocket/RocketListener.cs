@@ -10,16 +10,17 @@ namespace WebRocket {
       mAcceptor = acceptor;
     }
 
-    public void Start(string address) {
+    public async Task StartAcceptingAsync(string address, Func<IRocket, CancellationToken, Task> handleNewRocket, CancellationToken token) {
       mListener.AddPrefix(address);
       mListener.Start();
+      await DoAcceptingLoopAsync(handleNewRocket, token);
     }
 
     public void Stop() {
       mListener.Stop();
     }
 
-    public async Task DoAcceptingLoopAsync(Func<IRocket, CancellationToken, Task> handleNewRocket, CancellationToken token) {
+    private async Task DoAcceptingLoopAsync(Func<IRocket, CancellationToken, Task> handleNewRocket, CancellationToken token) {
       while (mListener.IsListening && !token.IsCancellationRequested)
         try {
           handleNewRocket(await mAcceptor.AcceptAsync(await mListener.GetContextAsync()), token).GetAwaiter();
