@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 namespace WebRocket.Wrappers {
-  internal class HttpListener : IHttpListerner {
+  public class HttpListener : IHttpListerner {
     public HttpListener() {
       mListener = new System.Net.HttpListener();
     }
