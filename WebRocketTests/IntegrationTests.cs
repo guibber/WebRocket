@@ -19,15 +19,25 @@ namespace WebRocketTests {
 
     [Test]
     public void TestMulitpleNewConnections() {
-      Task.WaitAll(ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose());
+      Task.WaitAll(ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose());
     }
 
     [Test]
     public void TestWithLotsOfNewConnections() {
-      Task.WaitAll(ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose(), ExecuteConnectTransferAndClose());
+      Task.WaitAll(ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose(),
+                   ExecuteConnectTransferAndClose());
     }
 
     [SetUp]
