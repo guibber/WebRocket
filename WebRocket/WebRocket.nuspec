@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>guibber.WebRocket</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>guibber</authors>
+    <owners>guibber</owners>
+    <projectUrl>https://github.com/guibber/WebRocket</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Async WebSocket Listener and Client based on .Net Framework</description>
+    <releaseNotes>This is the first release and contains a RocketListener and ClientRocket</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>Async WebSocket Listener</tags>
+  </metadata>
+</package>

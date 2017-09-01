@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WebRocket")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Async WebSocket Listener and Client based on .Net Framework")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("guibber")]
 [assembly: AssemblyProduct("WebRocket")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
