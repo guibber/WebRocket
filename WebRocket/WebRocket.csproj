@@ -46,6 +46,7 @@
     <Compile Include="EqualsOverride.cs" />
     <Compile Include="HttpListenerResponse.cs" />
     <Compile Include="IClientRocket.cs" />
+    <Compile Include="INewRocketHandler.cs" />
     <Compile Include="IRocket.cs" />
     <Compile Include="IRocketAcceptor.cs" />
     <Compile Include="IRocketListener.cs" />
