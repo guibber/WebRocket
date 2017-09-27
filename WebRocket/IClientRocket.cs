@@ -4,11 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebRocket {
-  public interface IClientRocket {
-    bool IsOpen { get; }
+  public interface IClientRocket : IRocket{
     Task<bool> ConnectAsync(Uri uri, CancellationToken token);
-    Task<RocketResult> ReceiveStreamAsync(MemoryStream stream, CancellationToken token);
-    Task<RocketResult> SendStreamAsync(MemoryStream stream, CancellationToken token);
-    Task CloseAsync(CancellationToken token);
   }
 }
