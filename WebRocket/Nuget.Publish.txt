@@ -1,0 +1,3 @@
+1) Change the version in Assembly
+2) run c:\tools\nuget.exe pack WebRocket.csproj
+3) use nuget site to publish .nupkg
