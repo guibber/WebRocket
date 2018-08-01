@@ -6,8 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using WebRocket;
-using WebRocket.Wrappers;
+using WebRocket.Client;
+using WebRocket.Client.Wrappers;
+using WebRocket.Server;
+using WebRocket.Server.Wrappers;
+using RocketResult = WebRocket.Client.RocketResult;
 
 namespace WebRocketTests {
   [TestFixture]

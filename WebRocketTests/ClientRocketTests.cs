@@ -7,8 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using WebRocket;
-using WebRocket.Wrappers;
+using WebRocket.Client;
+using WebRocket.Client.Wrappers;
+using IWebSocketReceiveResult = WebRocket.Client.Wrappers.IWebSocketReceiveResult;
+using RocketResult = WebRocket.Client.RocketResult;
 
 namespace WebRocketTests {
   [TestFixture]
@@ -32,7 +34,7 @@ namespace WebRocketTests {
              .Returns(WebSocketMessageType.Close);
       mSocket.Setup(m => m.ReceiveAsync(new ArraySegment<byte>(new byte[8192]), source.Token))
              .Returns(Task.FromResult(mResult.Object));
-      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "response normal", source.Token))
+      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", source.Token))
              .Returns(Task.FromResult(true));
       using (var stream = new MemoryStream(buffer)) {
         stream.Position = 32;
@@ -211,7 +213,7 @@ namespace WebRocketTests {
     public async Task TestCloseAsyncWhenSocketIsOpen() {
       var source = new CancellationTokenSource();
       mSocket.SetupGet(m => m.State).Returns(WebSocketState.Open);
-      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "initiated normal", source.Token))
+      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", source.Token))
              .Returns(Task.FromResult(true));
       await mRocket.CloseAsync(source.Token);
     }
@@ -220,7 +222,7 @@ namespace WebRocketTests {
     public async Task TestCloseAsyncSilencesWebSocketException() {
       var source = new CancellationTokenSource();
       mSocket.SetupGet(m => m.State).Returns(WebSocketState.Open);
-      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "initiated normal", source.Token))
+      mSocket.Setup(m => m.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", source.Token))
              .Throws<WebSocketException>();
       await mRocket.CloseAsync(source.Token);
     }

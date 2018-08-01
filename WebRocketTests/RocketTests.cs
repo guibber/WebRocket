@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using WebRocket;
-using WebRocket.Wrappers;
+using WebRocket.Server;
+using WebRocket.Server.Wrappers;
 
 namespace WebRocketTests {
   [TestFixture]

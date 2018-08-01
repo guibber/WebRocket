@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using WebRocket;
+using WebRocket.Server;
 
 namespace WebRocketTests {
   [TestFixture]
