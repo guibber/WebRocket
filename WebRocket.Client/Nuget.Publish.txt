@@ -1,17 +1,17 @@
 1) Change the version in properties
-2) Run C:\working\opensource\WebRocketCore\WebRocketCore> dotnet pack -c Release
+2) Run C:\working\opensource\WebRocket\WebRocket.Client> dotnet pack -c Release
 3) rename nupkg to .zip in C:\working\opensource\WebRocketCore\WebRocketCore\bin\Release\ and open with 7zipnuspec
 4) Put/replace following into nuspec
-    <id>guibber.WebRocketCore</id>
-    <version>1.0.0.0</version>
-    <title>WebRocketCore</title>
+    <id>guibber.WebRocket.Client</id>
+    <version>2.0.0</version>
+    <title>guibber.WebRocket.Client</title>
     <authors>guibber</authors>
     <owners>guibber</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <projectUrl>https://github.com/guibber/WebRocketCore</projectUrl>
-    <description>Async WebSocket Listener and Client based on .Net Core</description>
-    <releaseNotes>Initial .Net Core Version</releaseNotes>
+    <projectUrl>https://github.com/guibber/WebRocket</projectUrl>
+    <description>.Net Standard Async WebSocket Client Library</description>
+    <releaseNotes>Initial .Net Standard 1.3 Version</releaseNotes>
     <copyright>Copyright 2018</copyright>
-    <tags>Async WebSocket Listener</tags>
+    <tags>Async WebSocket</tags>
 5) Rename back to .nupkg and prepend guibber.
 4) use nuget site to publish .nupkg
