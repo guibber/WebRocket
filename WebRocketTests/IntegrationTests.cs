@@ -46,7 +46,7 @@ namespace WebRocketTests {
     [SetUp]
     public void DoSetup() {
       mSource = new CancellationTokenSource();
-      mListener = new RocketListener(new HttpListener(), new RocketAcceptor());
+      mListener = RocketListenerBuilder.Build();
       mAcceptingAsync = mListener.StartAcceptingAsync("http://localhost:9090/Test/", async (rocket, token) => {
                                                                                        using (var stream = new MemoryStream()) {
                                                                                          await rocket.ReceiveStreamAsync(stream, token);
