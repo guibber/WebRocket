@@ -66,7 +66,7 @@ namespace WebRocketTests {
     private static async Task ExecuteConnectTransferAndClose() {
       var source = new CancellationTokenSource();
       var buffer = Encoding.UTF8.GetBytes("hello");
-      var rocket = new ClientRocket(new ClientWebSocketBuilder());
+      var rocket = ClientRocketBuilder.Build();
       Assert.True(await rocket.ConnectAsync(new Uri("ws://localhost:9090/Test/"), source.Token));
       Assert.That(await rocket.SendStreamAsync(new MemoryStream(buffer, 0, buffer.Length, false, true), source.Token), Is.EqualTo(new RocketResult()));
       using (var stream = new MemoryStream()) {
