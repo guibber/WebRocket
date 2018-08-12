@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebRocket.Server", "WebRock
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebRocketTests", "WebRocketTests\WebRocketTests.csproj", "{9ED9E5B4-4ABB-4657-8887-0D5EC757F563}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRocket.Server.Autofac", "WebRocket.Server.Autofac\WebRocket.Server.Autofac.csproj", "{06DFF19E-685A-4905-8354-E6DC35EA0A19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{9ED9E5B4-4ABB-4657-8887-0D5EC757F563}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9ED9E5B4-4ABB-4657-8887-0D5EC757F563}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9ED9E5B4-4ABB-4657-8887-0D5EC757F563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06DFF19E-685A-4905-8354-E6DC35EA0A19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DFF19E-685A-4905-8354-E6DC35EA0A19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DFF19E-685A-4905-8354-E6DC35EA0A19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DFF19E-685A-4905-8354-E6DC35EA0A19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
