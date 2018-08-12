@@ -3,7 +3,7 @@
 3) rename nupkg to .zip in C:\working\opensource\WebRocketCore\WebRocketCore\bin\Release\ and open with 7zipnuspec
 4) Put/replace following into nuspec
     <id>guibber.WebRocket.Client</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <title>guibber.WebRocket.Client</title>
     <authors>guibber</authors>
     <owners>guibber</owners>
