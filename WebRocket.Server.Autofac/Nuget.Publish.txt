@@ -1,0 +1,17 @@
+1) Change the version in properties
+2) Run C:\working\opensource\WebRocket\WebRocket.Server.Autofac> dotnet pack -c Release
+3) edit nuspec by opening nupkg with 7.zip
+4) Put/replace following into nuspec
+    <id>guibber.WebRocket.Server.Autofac</id>
+    <version>2.0.1</version>
+    <title>guibber.WebRocket.Server.Autofac</title>
+    <authors>guibber</authors>
+    <owners>guibber</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/guibber/WebRocket</projectUrl>
+    <description>WebRocket.Server Autofac Module Library</description>
+    <releaseNotes>Initial .Net Standard 1.3 Version</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>WebRocket Autofac</tags>
+
+4) use nuget site to publish .nupkg
