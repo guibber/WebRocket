@@ -32,23 +32,62 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public async Task TestStartAcceptingAsyncContinuesOnException() {
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketAsync() {
       var callCount = 0;
       var source = new CancellationTokenSource();
       const string address = "address";
+      var expectedException = new Exception("expected");
       mHttpListener.Setup(m => m.AddPrefix(address));
       mHttpListener.Setup(m => m.Start());
       mHttpListener.SetupGet(m => m.IsListening).Returns(true);
       mHttpListener.Setup(m => m.GetContextAsync()).Returns(Task.FromResult(mListenerContext.Object));
       mAcceptor.Setup(m => m.AcceptAsync(mListenerContext.Object))
                .Returns(Task.FromResult((IRocket)new Rocket(null)));
-      source.CancelAfter(100);
+      mObserver.Setup(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token))
+               .Returns(Task.FromResult(true));
+      source.CancelAfter(200);
       await mListener.StartAcceptingAsync(address, (rocket, token) => {
-                                             if (callCount++ < 10)
-                                               throw new Exception("Any Exception");
-                                             return Task.FromResult(callCount++);
-                                           }, source.Token);
+                                                     if (callCount++ < 10)
+                                                       throw expectedException;
+                                                     return Task.FromResult(callCount);
+                                                   }, source.Token);
       Assert.That(callCount, Is.GreaterThan(10));
+      mObserver.Verify(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token), Times.AtLeast(10));
+    }
+
+    [Test]
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionAcceptingAsync() {
+      var source = new CancellationTokenSource();
+      const string address = "address";
+      var expectedException = new Exception("expected");
+      mHttpListener.Setup(m => m.AddPrefix(address));
+      mHttpListener.Setup(m => m.Start());
+      mHttpListener.SetupGet(m => m.IsListening).Returns(true);
+      mHttpListener.Setup(m => m.GetContextAsync()).Returns(Task.FromResult(mListenerContext.Object));
+      mAcceptor.Setup(m => m.AcceptAsync(mListenerContext.Object))
+               .Throws(expectedException);
+      mObserver.Setup(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token))
+               .Returns(Task.FromResult(true));
+      source.CancelAfter(200);
+      await mListener.StartAcceptingAsync(address, (rocket, token) => Task.FromResult(true), source.Token);
+      mObserver.Verify(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token), Times.AtLeast(10));
+    }
+
+    [Test]
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionGetContextAsync() {
+      var source = new CancellationTokenSource();
+      const string address = "address";
+      var expectedException = new Exception("expected");
+      mHttpListener.Setup(m => m.AddPrefix(address));
+      mHttpListener.Setup(m => m.Start());
+      mHttpListener.SetupGet(m => m.IsListening).Returns(true);
+      mHttpListener.Setup(m => m.GetContextAsync())
+                   .Throws(expectedException);
+      mObserver.Setup(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token))
+               .Returns(Task.FromResult(true));
+      source.CancelAfter(200);
+      await mListener.StartAcceptingAsync(address, (rocket, token) => Task.FromResult(true), source.Token);
+      mObserver.Verify(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token), Times.AtLeast(10));
     }
 
     [Test]
@@ -74,7 +113,7 @@ namespace WebRocketTests {
       await mListener.StartAcceptingAsync(address, (rocket, token) => Task.FromResult(callCount++), source.Token);
       Assert.That(callCount, Is.EqualTo(0));
     }
-    
+
     [Test]
     public void TestStop() {
       mHttpListener.Setup(m => m.Stop());
@@ -86,12 +125,14 @@ namespace WebRocketTests {
       mHttpListener = Mock<IHttpListerner>();
       mAcceptor = new Mock<IRocketAcceptor>();
       mListenerContext = Mock<IHttpListenerContext>();
-      mListener = new RocketListener(mHttpListener.Object, mAcceptor.Object);
+      mObserver = Mock<IObserver>(); // new TestObserver();
+      mListener = new RocketListener(mHttpListener.Object, mAcceptor.Object, mObserver.Object);
     }
 
     private RocketListener mListener;
     private Mock<IHttpListerner> mHttpListener;
     private Mock<IRocketAcceptor> mAcceptor;
     private Mock<IHttpListenerContext> mListenerContext;
+    private Mock<IObserver> mObserver;
   }
 }

@@ -5,9 +5,10 @@ using WebRocket.Server.Wrappers;
 
 namespace WebRocket.Server {
   public class RocketListener : IRocketListener {
-    public RocketListener(IHttpListerner listener, IRocketAcceptor acceptor) {
+    public RocketListener(IHttpListerner listener, IRocketAcceptor acceptor, IObserver observer) {
       mListener = listener;
       mAcceptor = acceptor;
+      mObserver = observer;
     }
 
     public async Task StartAcceptingAsync(string address, Func<IRocket, CancellationToken, Task> handleNewRocket, CancellationToken token) {
@@ -23,11 +24,14 @@ namespace WebRocket.Server {
     private async Task DoAcceptingLoopAsync(Func<IRocket, CancellationToken, Task> handleNewRocket, CancellationToken token) {
       while (mListener.IsListening && !token.IsCancellationRequested)
         try {
-          handleNewRocket(await mAcceptor.AcceptAsync(await mListener.GetContextAsync()), token).GetAwaiter();
-        } catch { }
+          await handleNewRocket(await mAcceptor.AcceptAsync(await mListener.GetContextAsync()), token);
+        } catch (Exception ex) {
+          await mObserver.NoticeAcceptExceptionAsync(ex, token);
+        }
     }
 
     private readonly IRocketAcceptor mAcceptor;
     private readonly IHttpListerner mListener;
+    private readonly IObserver mObserver;
   }
 }

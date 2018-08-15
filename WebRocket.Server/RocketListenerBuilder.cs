@@ -3,7 +3,7 @@
 namespace WebRocket.Server {
   public class RocketListenerBuilder {
     public static RocketListener Build() {
-      return new RocketListener(new HttpListener(), new RocketAcceptor());
+      return new RocketListener(new HttpListener(), new RocketAcceptor(), new NoOpObserver());
     }
   }
 }
