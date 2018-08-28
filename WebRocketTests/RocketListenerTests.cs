@@ -32,7 +32,7 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketAsync() {
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketWhenCompletesSynchronouslyAsync() {
       var callCount = 0;
       var source = new CancellationTokenSource();
       const string address = "address";
@@ -43,16 +43,41 @@ namespace WebRocketTests {
       mHttpListener.Setup(m => m.GetContextAsync()).Returns(Task.FromResult(mListenerContext.Object));
       mAcceptor.Setup(m => m.AcceptAsync(mListenerContext.Object))
                .Returns(Task.FromResult((IRocket)new Rocket(null)));
-      mObserver.Setup(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token))
+      mObserver.Setup(m => m.NoticeHandleNewRocketExceptionAsync(expectedException, source.Token))
                .Returns(Task.FromResult(true));
-      source.CancelAfter(200);
+      source.CancelAfter(5000);
       await mListener.StartAcceptingAsync(address, (rocket, token) => {
                                                      if (callCount++ < 10)
                                                        throw expectedException;
                                                      return Task.FromResult(callCount);
                                                    }, source.Token);
       Assert.That(callCount, Is.GreaterThan(10));
-      mObserver.Verify(m => m.NoticeAcceptExceptionAsync(expectedException, source.Token), Times.AtLeast(10));
+      mObserver.Verify(m => m.NoticeHandleNewRocketExceptionAsync(expectedException, source.Token), Times.AtLeast(10));
+    }
+
+    [Test]
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketWhenRunsAsyschronouslyAsync() {
+      var callCount = 0;
+      var source = new CancellationTokenSource();
+      const string address = "address";
+      var expectedException = new Exception("expected");
+      mHttpListener.Setup(m => m.AddPrefix(address));
+      mHttpListener.Setup(m => m.Start());
+      mHttpListener.SetupGet(m => m.IsListening).Returns(true);
+      mHttpListener.Setup(m => m.GetContextAsync()).Returns(Task.FromResult(mListenerContext.Object));
+      mAcceptor.Setup(m => m.AcceptAsync(mListenerContext.Object))
+               .Returns(Task.FromResult((IRocket)new Rocket(null)));
+      mObserver.Setup(m => m.NoticeHandleNewRocketExceptionAsync(It.Is<AggregateException>(ex => ex.InnerExceptions[0].Equals(expectedException)), source.Token))
+               .Returns(Task.FromResult(true));
+      source.CancelAfter(5000);
+      await mListener.StartAcceptingAsync(address, async (rocket, token) => {
+                                                     await Task.Delay(100, token);
+                                                     if (callCount++ < 10)
+                                                       throw expectedException;
+                                                     await Task.FromResult(callCount);
+                                                   }, source.Token);
+      Assert.That(callCount, Is.GreaterThan(10));
+      mObserver.Verify(m => m.NoticeHandleNewRocketExceptionAsync(It.Is<AggregateException>(ex => ex.InnerExceptions[0].Equals(expectedException)), source.Token), Times.AtLeast(10));
     }
 
     [Test]

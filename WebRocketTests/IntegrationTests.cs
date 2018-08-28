@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -7,52 +8,105 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using WebRocket.Client;
-using WebRocket.Client.Wrappers;
 using WebRocket.Server;
-using WebRocket.Server.Wrappers;
 using RocketResult = WebRocket.Client.RocketResult;
 
 namespace WebRocketTests {
+  internal class HandlerMonitor {
+    public HandlerMonitor() {
+      mStartsLock = new SemaphoreSlim(1, 1);
+      mFinishesLock = new SemaphoreSlim(1, 1);
+      Starts = new List<string>();
+      Finishes = new List<string>();
+    }
+
+    public List<string> Starts {get;}
+    public List<string> Finishes {get;}
+
+    public async Task StartHandle(string id, CancellationToken token) {
+      Console.WriteLine($"start handling {id}");
+      await mStartsLock.WaitAsync(token);
+      Starts.Add(id);
+      mStartsLock.Release();
+    }
+
+    public async Task FinishHandle(string id, CancellationToken token) {
+      Console.WriteLine($"finish handling {id}");
+      await mFinishesLock.WaitAsync(token);
+      Finishes.Add(id);
+      mFinishesLock.Release();
+    }
+    private readonly SemaphoreSlim mStartsLock;
+    private readonly SemaphoreSlim mFinishesLock;
+  }
+
   [TestFixture]
   public class IntegrationTests {
     [Test]
     public async Task TestOneNewConnection() {
-      await ExecuteConnectTransferAndClose();
+      var source = new CancellationTokenSource();
+      source.CancelAfter(20000);
+      await ExecuteConnectTransferAndClose(source.Token);
     }
 
     [Test]
-    public void TestMulitpleNewConnections() {
-      Task.WaitAll(ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose());
+    public async Task TestMulitpleNewConnections() {
+      var source = new CancellationTokenSource();
+      source.CancelAfter(20000);
+      await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token));
     }
 
     [Test]
-    public void TestWithLotsOfNewConnections() {
-      Task.WaitAll(ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose(),
-                   ExecuteConnectTransferAndClose());
+    public async Task TestWithLotsOfNewConnections() {
+      var source = new CancellationTokenSource();
+      source.CancelAfter(20000);
+      await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token));
+    }
+
+    [Test]
+    public async Task TestAcceptingOneInProgressDoesNotBlockAcceptingNewConnections() {
+      var source = new CancellationTokenSource();
+      source.CancelAfter(10000);
+      var tsk = ExecuteConnectTransferAndClose(5000, source.Token).GetAwaiter();
+      await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token));
+      tsk.GetResult();
+      await Task.Delay(1000, source.Token);
+      Assert.AreEqual(6, mHandlerMonitor.Starts.Count);
+      Assert.AreEqual(6, mHandlerMonitor.Finishes.Count);
+      Assert.AreEqual(mHandlerMonitor.Starts.First(), mHandlerMonitor.Finishes.Last());
     }
 
     [SetUp]
     public void DoSetup() {
       mSource = new CancellationTokenSource();
       mListener = RocketListenerBuilder.Build();
+      mHandlerMonitor = new HandlerMonitor();
       mAcceptingAsync = mListener.StartAcceptingAsync("http://localhost:9090/Test/", async (rocket, token) => {
+                                                                                       var id = Guid.NewGuid().ToString();
+                                                                                       await mHandlerMonitor.StartHandle(id, token);
                                                                                        using (var stream = new MemoryStream()) {
                                                                                          await rocket.ReceiveStreamAsync(stream, token);
                                                                                          await rocket.SendStreamAsync(stream, token);
                                                                                          await rocket.ReceiveStreamAsync(stream, token);
                                                                                        }
+                                                                                       await mHandlerMonitor.FinishHandle(id, token);
                                                                                      }, mSource.Token).GetAwaiter();
     }
 
@@ -63,21 +117,26 @@ namespace WebRocketTests {
       mAcceptingAsync.GetResult();
     }
 
-    private static async Task ExecuteConnectTransferAndClose() {
-      var source = new CancellationTokenSource();
+    private static async Task ExecuteConnectTransferAndClose(CancellationToken token) {
+      await ExecuteConnectTransferAndClose(0, token);
+    }
+
+    private static async Task ExecuteConnectTransferAndClose(int delayPostConnect, CancellationToken token) {
       var buffer = Encoding.UTF8.GetBytes("hello");
       var rocket = ClientRocketBuilder.Build();
-      Assert.True(await rocket.ConnectAsync(new Uri("ws://localhost:9090/Test/"), source.Token));
-      Assert.That(await rocket.SendStreamAsync(new MemoryStream(buffer, 0, buffer.Length, false, true), source.Token), Is.EqualTo(new RocketResult()));
+      Assert.True(await rocket.ConnectAsync(new Uri("ws://localhost:9090/Test/"), token));
+      await Task.Delay(delayPostConnect, token);
+      Assert.That(await rocket.SendStreamAsync(new MemoryStream(buffer, 0, buffer.Length, false, true), token), Is.EqualTo(new RocketResult()));
       using (var stream = new MemoryStream()) {
-        await rocket.ReceiveStreamAsync(stream, source.Token);
+        await rocket.ReceiveStreamAsync(stream, token);
         Assert.That(stream.GetBuffer().Take(buffer.Length), Is.EqualTo(buffer));
       }
-      await rocket.CloseAsync(source.Token);
+      await rocket.CloseAsync(token);
     }
 
     private RocketListener mListener;
     private CancellationTokenSource mSource;
     private TaskAwaiter mAcceptingAsync;
+    private HandlerMonitor mHandlerMonitor;
   }
 }

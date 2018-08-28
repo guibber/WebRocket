@@ -7,5 +7,9 @@ namespace WebRocket.Server {
     public Task NoticeAcceptExceptionAsync(Exception ex, CancellationToken token) {
       return Task.FromResult(true);
     }
+
+    public Task NoticeHandleNewRocketExceptionAsync(Exception ex, CancellationToken token) {
+      return Task.FromResult(true);
+    }
   }
 }

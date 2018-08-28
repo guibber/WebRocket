@@ -17,6 +17,7 @@ namespace WebRocket.Server {
     private IWebSocket Socket => mSocketContext.WebSocket;
 
     public async Task<RocketResult> ReceiveStreamAsync(MemoryStream stream, CancellationToken token) {
+      await new PublicSynchronizationContextManager();
       var resultRocket = new RocketResult();
       try {
         await mReceiveLock.WaitAsync(token);
@@ -43,6 +44,7 @@ namespace WebRocket.Server {
     }
 
     public async Task<RocketResult> SendStreamAsync(MemoryStream stream, CancellationToken token) {
+      await new PublicSynchronizationContextManager();
       var result = new RocketResult();
       try {
         await mSendLock.WaitAsync(token);
@@ -61,6 +63,7 @@ namespace WebRocket.Server {
     }
 
     public async Task CloseAsync(CancellationToken token) {
+      await new PublicSynchronizationContextManager();
       if (Socket.State != WebSocketState.Open)
         return;
       try {
