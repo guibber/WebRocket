@@ -13,12 +13,12 @@ namespace WebRocket.Server {
       mReceiveLock = new SemaphoreSlim(1, 1);
     }
 
-    public bool IsOpen => Socket.State == WebSocketState.Open;
     private IWebSocket Socket => mSocketContext.WebSocket;
+    public bool IsOpen => Socket.State == WebSocketState.Open;
 
     public async Task<RocketResult> ReceiveStreamAsync(MemoryStream stream, CancellationToken token) {
       await new PublicSynchronizationContextManager();
-      var resultRocket = new RocketResult();
+      var result = new RocketResult();
       try {
         await mReceiveLock.WaitAsync(token);
         stream.Seek(0, SeekOrigin.Begin);
@@ -28,14 +28,17 @@ namespace WebRocket.Server {
           socketResult = await Socket.ReceiveAsync(buffer, token);
           if (socketResult.MessageType == WebSocketMessageType.Close) {
             await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "response normal", token);
-            return resultRocket.SetClosed();
+            return result.SetClosed();
           }
+
           stream.Write(buffer.Array, buffer.Offset, socketResult.Count);
         } while (!socketResult.EndOfMessage);
+
         stream.Seek(0, SeekOrigin.Begin);
-        return resultRocket;
-      } catch (WebSocketException) {
-        return resultRocket.SetClosed();
+        return result;
+      } catch (WebSocketException ex) {
+        return result.SetException(ex)
+                     .SetClosed();
       } finally {
         try {
           mReceiveLock.Release();
@@ -53,8 +56,9 @@ namespace WebRocket.Server {
                                true,
                                token);
         return result;
-      } catch (WebSocketException) {
-        return result.SetClosed();
+      } catch (WebSocketException ex) {
+        return result.SetException(ex)
+                     .SetClosed();
       } finally {
         try {
           mSendLock.Release();

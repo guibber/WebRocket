@@ -28,7 +28,7 @@ namespace WebRocket.Server {
         try {
           var rocket = await mAcceptor.AcceptAsync(await mListener.GetContextAsync());
           try {
-            handleNewRocket(rocket, token).ContinueWith(t => ContinueHandleNewRocket(t, token), TaskContinuationOptions.OnlyOnFaulted).GetAwaiter();
+            handleNewRocket(rocket, token).ContinueWith(t => ContinueHandleNewRocketFailed(t.Exception, token), TaskContinuationOptions.OnlyOnFaulted).GetAwaiter();
           } catch (Exception ex) {
             await mObserver.NoticeHandleNewRocketExceptionAsync(ex, token);
           }
@@ -37,8 +37,8 @@ namespace WebRocket.Server {
         }
     }
 
-    private async Task ContinueHandleNewRocket(Task tsk, CancellationToken token) {
-      await mObserver.NoticeHandleNewRocketExceptionAsync(tsk.Exception, token);
+    private async Task ContinueHandleNewRocketFailed(Exception ex, CancellationToken token) {
+      await mObserver.NoticeHandleNewRocketExceptionAsync(ex, token);
     }
 
     private readonly IRocketAcceptor mAcceptor;

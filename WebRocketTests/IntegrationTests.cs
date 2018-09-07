@@ -50,7 +50,7 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public async Task TestMulitpleNewConnections() {
+    public async Task TestMultipleNewConnections() {
       var source = new CancellationTokenSource();
       source.CancelAfter(20000);
       await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),

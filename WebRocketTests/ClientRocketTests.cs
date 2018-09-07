@@ -114,7 +114,7 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public void TestReceiveStreamAsyncProtectsToOneAtATime() {
+    public async Task TestReceiveStreamAsyncProtectsToOneAtATime() {
       var source = new CancellationTokenSource();
       var expected = new byte[] {
                                   0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
@@ -135,7 +135,7 @@ namespace WebRocketTests {
                                                               })
              .Returns(Task.FromResult(mResult.Object));
 
-      Task.WaitAll(StartReceivAsyncTasks(expected, source.Token));
+      await Task.WhenAll(StartReceivAsyncTasks(expected, source.Token));
       Assert.False(startCounts.Any(c => c != 1));
       Assert.False(endCounts.Any(c => c != 0));
     }
@@ -182,7 +182,7 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public void TestSendStreamAsyncProtectsToOneAtATime() {
+    public async Task TestSendStreamAsyncProtectsToOneAtATime() {
       var source = new CancellationTokenSource();
       var activeSends = new ProtectedInt();
       var startCounts = new List<int>();
@@ -194,7 +194,7 @@ namespace WebRocketTests {
                                                                                             endCounts.Add(await activeSends.DecrementAsync());
                                                                                           })
              .Returns(Task.FromResult(true));
-      Task.WaitAll(StartSendAsyncTasks(source.Token));
+      await Task.WhenAll(StartSendAsyncTasks(source.Token));
       Assert.False(startCounts.Any(c => c != 1));
       Assert.False(endCounts.Any(c => c != 0));
     }

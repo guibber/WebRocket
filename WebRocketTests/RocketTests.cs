@@ -112,7 +112,7 @@ namespace WebRocketTests {
     }
 
     [Test]
-    public void TestReceiveStreamAsyncProtectsToOneAtATime() {
+    public async Task TestReceiveStreamAsyncProtectsToOneAtATime() {
       var source = new CancellationTokenSource();
       var expected = new byte[] {
                                   0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
@@ -133,7 +133,7 @@ namespace WebRocketTests {
                                                               })
              .Returns(Task.FromResult(mResult.Object));
 
-      Task.WaitAll(StartReceivAsyncTasks(expected, source.Token));
+      await Task.WhenAll(StartReceivAsyncTasks(expected, source.Token));
       Assert.False(startCounts.Any(c => c != 1));
       Assert.False(endCounts.Any(c => c != 0));
     }
@@ -141,11 +141,14 @@ namespace WebRocketTests {
     [Test]
     public async Task TestReceiveStreamAsyncWithWebSocketExceptionReturnsClosedResult() {
       var source = new CancellationTokenSource();
+      var expected = new WebSocketException();
       mSocket.Setup(m => m.ReceiveAsync(new ArraySegment<byte>(new byte[8192]), source.Token))
-             .Throws(new WebSocketException());
+             .Throws(expected);
 
       using (var stream = new MemoryStream()) {
-        Assert.That(await mRocket.ReceiveStreamAsync(stream, source.Token), Is.EqualTo(new RocketResult().SetClosed()));
+        Assert.That(await mRocket.ReceiveStreamAsync(stream, source.Token),
+                    Is.EqualTo(new RocketResult().SetException(expected)
+                                                 .SetClosed()));
       }
     }
 
@@ -167,20 +170,23 @@ namespace WebRocketTests {
     [Test]
     public async Task TestSendStreamAsyncReturnsClosedWhenWebSocketException() {
       var source = new CancellationTokenSource();
+      var expected = new WebSocketException();
       var sendBuffer = new byte[] {
                                     0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
                                     0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8
                                   };
       mSocket.Setup(m => m.SendAsync(new ArraySegment<byte>(sendBuffer, 0, sendBuffer.Length), WebSocketMessageType.Binary, true, source.Token))
-             .Throws<WebSocketException>();
+             .Throws(expected);
 
       using (var stream = new MemoryStream(sendBuffer, 0, sendBuffer.Length, false, true)) {
-        Assert.That(await mRocket.SendStreamAsync(stream, source.Token), Is.EqualTo(new RocketResult().SetClosed()));
+        Assert.That(await mRocket.SendStreamAsync(stream, source.Token),
+                    Is.EqualTo(new RocketResult().SetException(expected)
+                                                 .SetClosed()));
       }
     }
 
     [Test]
-    public void TestSendStreamAsyncProtectsToOneAtATime() {
+    public async Task TestSendStreamAsyncProtectsToOneAtATime() {
       var source = new CancellationTokenSource();
       var activeSends = new ProtectedInt();
       var startCounts = new List<int>();
@@ -192,7 +198,7 @@ namespace WebRocketTests {
                                                                                             endCounts.Add(await activeSends.DecrementAsync());
                                                                                           })
              .Returns(Task.FromResult(true));
-      Task.WaitAll(StartSendAsyncTasks(source.Token));
+      await Task.WhenAll(StartSendAsyncTasks(source.Token));
       Assert.False(startCounts.Any(c => c != 1));
       Assert.False(endCounts.Any(c => c != 0));
     }
