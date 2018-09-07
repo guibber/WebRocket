@@ -9,10 +9,8 @@ using Moq;
 using NUnit.Framework;
 using WebRocket.Client;
 using WebRocket.Client.Wrappers;
-using IWebSocketReceiveResult = WebRocket.Client.Wrappers.IWebSocketReceiveResult;
-using RocketResult = WebRocket.Client.RocketResult;
 
-namespace WebRocketTests {
+namespace WebRocketTests.Client {
   [TestFixture]
   public class ClientRocketTests : BaseUnitTest {
     [TestCase(WebSocketState.Open, true)]
@@ -143,11 +141,14 @@ namespace WebRocketTests {
     [Test]
     public async Task TestReceiveStreamAsyncWithWebSocketExceptionReturnsClosedResult() {
       var source = new CancellationTokenSource();
+      var expected = new WebSocketException();
       mSocket.Setup(m => m.ReceiveAsync(new ArraySegment<byte>(new byte[8192]), source.Token))
-             .Throws(new WebSocketException());
+             .Throws(expected);
 
       using (var stream = new MemoryStream()) {
-        Assert.That(await mRocket.ReceiveStreamAsync(stream, source.Token), Is.EqualTo(new RocketResult().SetClosed()));
+        Assert.That(await mRocket.ReceiveStreamAsync(stream, source.Token),
+                    Is.EqualTo(new RocketResult().SetException(expected)
+                                                 .SetClosed()));
       }
     }
 
@@ -169,15 +170,18 @@ namespace WebRocketTests {
     [Test]
     public async Task TestSendStreamAsyncReturnsClosedWhenWebSocketException() {
       var source = new CancellationTokenSource();
+      var expected = new WebSocketException();
       var sendBuffer = new byte[] {
                                     0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
                                     0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8
                                   };
       mSocket.Setup(m => m.SendAsync(new ArraySegment<byte>(sendBuffer, 0, sendBuffer.Length), WebSocketMessageType.Binary, true, source.Token))
-             .Throws<WebSocketException>();
+             .Throws(expected);
 
       using (var stream = new MemoryStream(sendBuffer, 0, sendBuffer.Length, false, true)) {
-        Assert.That(await mRocket.SendStreamAsync(stream, source.Token), Is.EqualTo(new RocketResult().SetClosed()));
+        Assert.That(await mRocket.SendStreamAsync(stream, source.Token),
+                    Is.EqualTo(new RocketResult().SetException(expected)
+                                                 .SetClosed()));
       }
     }
 

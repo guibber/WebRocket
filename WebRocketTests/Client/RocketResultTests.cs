@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using WebRocket.Server;
 
-namespace WebRocketTests {
+namespace WebRocketTests.Client {
   [TestFixture]
   public class RocketResultTests {
     [Test]

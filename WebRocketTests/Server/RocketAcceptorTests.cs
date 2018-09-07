@@ -8,7 +8,7 @@ using NUnit.Framework;
 using WebRocket.Server;
 using WebRocket.Server.Wrappers;
 
-namespace WebRocketTests {
+namespace WebRocketTests.Server {
   [TestFixture]
   public class RocketAcceptorTests : BaseUnitTest {
     [Test]

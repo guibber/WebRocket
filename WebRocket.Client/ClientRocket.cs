@@ -21,11 +21,12 @@ namespace WebRocket.Client {
         await mSocket.ConnectAsync(uri, token);
         return true;
       } catch (WebSocketException) { }
+
       return false;
     }
 
     public async Task<RocketResult> ReceiveStreamAsync(MemoryStream stream, CancellationToken token) {
-      var resultRocket = new RocketResult();
+      var result = new RocketResult();
       try {
         await mReceiveLock.WaitAsync(token);
         stream.Seek(0, SeekOrigin.Begin);
@@ -35,14 +36,17 @@ namespace WebRocket.Client {
           socketResult = await mSocket.ReceiveAsync(buffer, token);
           if (socketResult.MessageType == WebSocketMessageType.Close) {
             await mSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", token);
-            return resultRocket.SetClosed();
+            return result.SetClosed();
           }
+
           stream.Write(buffer.Array, buffer.Offset, socketResult.Count);
         } while (!socketResult.EndOfMessage);
+
         stream.Seek(0, SeekOrigin.Begin);
-        return resultRocket;
-      } catch (WebSocketException) {
-        return resultRocket.SetClosed();
+        return result;
+      } catch (WebSocketException ex) {
+        return result.SetException(ex)
+                     .SetClosed();
       } finally {
         try {
           mReceiveLock.Release();
@@ -59,19 +63,14 @@ namespace WebRocket.Client {
                                 true,
                                 token);
         return result;
-      } catch (WebSocketException) {
-        return result.SetClosed();
+      } catch (WebSocketException ex) {
+        return result.SetException(ex)
+                     .SetClosed();
       } finally {
         try {
           mSendLock.Release();
         } catch (SemaphoreFullException) { }
       }
-    }
-
-    private static ArraySegment<byte> GetBuffer(MemoryStream stream) {
-      var seg = new ArraySegment<byte>();
-      stream.TryGetBuffer(out seg);
-      return seg;
     }
 
     public async Task CloseAsync(CancellationToken token) {
@@ -80,6 +79,12 @@ namespace WebRocket.Client {
       try {
         await mSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", token);
       } catch (WebSocketException) { }
+    }
+
+    private static ArraySegment<byte> GetBuffer(MemoryStream stream) {
+      var seg = new ArraySegment<byte>();
+      stream.TryGetBuffer(out seg);
+      return seg;
     }
 
     public override bool Equals(object obj) {
