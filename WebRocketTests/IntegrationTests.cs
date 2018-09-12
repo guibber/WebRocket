@@ -61,8 +61,19 @@ namespace WebRocketTests {
     [Test]
     public async Task TestWithLotsOfNewConnections() {
       var source = new CancellationTokenSource();
-      source.CancelAfter(20000);
+      source.CancelAfter(30000);
       await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
+                         ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
@@ -80,14 +91,13 @@ namespace WebRocketTests {
     public async Task TestAcceptingOneInProgressDoesNotBlockAcceptingNewConnections() {
       var source = new CancellationTokenSource();
       source.CancelAfter(10000);
-      var tsk = ExecuteConnectTransferAndClose(5000, source.Token).GetAwaiter();
+      var tsk = ExecuteConnectTransferAndClose(5000, source.Token);
       await Task.WhenAll(ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token));
-      tsk.GetResult();
-      await Task.Delay(1000, source.Token);
+      await tsk;
       Assert.AreEqual(6, mHandlerMonitor.Starts.Count);
       Assert.AreEqual(6, mHandlerMonitor.Finishes.Count);
       Assert.AreEqual(mHandlerMonitor.Starts.First(), mHandlerMonitor.Finishes.Last());
