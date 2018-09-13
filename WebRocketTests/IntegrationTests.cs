@@ -98,6 +98,7 @@ namespace WebRocketTests {
                          ExecuteConnectTransferAndClose(source.Token),
                          ExecuteConnectTransferAndClose(source.Token));
       await tsk;
+      await Task.Delay(1000, source.Token);
       Assert.AreEqual(6, mHandlerMonitor.Starts.Count);
       Assert.AreEqual(6, mHandlerMonitor.Finishes.Count);
       Assert.AreEqual(mHandlerMonitor.Starts.First(), mHandlerMonitor.Finishes.Last());
