@@ -133,7 +133,7 @@ namespace WebRocketTests.Client {
                                                               })
              .Returns(Task.FromResult(mResult.Object));
 
-      await Task.WhenAll(StartReceivAsyncTasks(expected, source.Token));
+      await Task.WhenAll(StartReceiveAsyncTasks(expected, source.Token));
       Assert.False(startCounts.Any(c => c != 1));
       Assert.False(endCounts.Any(c => c != 0));
     }
@@ -264,7 +264,7 @@ namespace WebRocketTests.Client {
                                             }).ToArray();
     }
 
-    private Task[] StartReceivAsyncTasks(byte[] expected, CancellationToken token) {
+    private Task[] StartReceiveAsyncTasks(byte[] expected, CancellationToken token) {
       return Enumerable.Range(0, 10).Select(i => {
                                               return Task.Run(() => {
                                                                 using (var stream = new MemoryStream()) {
