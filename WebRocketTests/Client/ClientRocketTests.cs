@@ -232,11 +232,11 @@ namespace WebRocketTests.Client {
     }
 
     [Test]
-    public async Task TestConnectAsyncSilencesWebSocketExceptionAndReturnsFalse() {
+    public async Task TestConnectAsyncDoesNotSilenceWebSocketException() {
       var uri = new Uri("ws://localhost2");
       mSocket.Setup(m => m.ConnectAsync(uri, CancellationToken.None))
              .Throws<WebSocketException>();
-      Assert.False(await mRocket.ConnectAsync(uri, CancellationToken.None));
+      Assert.Throws<WebSocketException>(()  => mRocket.ConnectAsync(uri, CancellationToken.None).GetAwaiter().GetResult());
     }
 
     [SetUp]
@@ -250,7 +250,7 @@ namespace WebRocketTests.Client {
       mSocket.Setup(m => m.ConnectAsync(uri, CancellationToken.None))
              .Returns(Task.FromResult(true));
       mRocket = new ClientRocket(mBuilder.Object);
-      Assert.True(await mRocket.ConnectAsync(uri, CancellationToken.None));
+      await mRocket.ConnectAsync(uri, CancellationToken.None);
     }
 
     private Task[] StartSendAsyncTasks(CancellationToken token) {

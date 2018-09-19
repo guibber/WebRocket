@@ -4,6 +4,6 @@ using System.Threading.Tasks;
 
 namespace WebRocket.Client {
   public interface IClientRocket : IRocket{
-    Task<bool> ConnectAsync(Uri uri, CancellationToken token);
+    Task ConnectAsync(Uri uri, CancellationToken token);
   }
 }

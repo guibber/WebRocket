@@ -15,14 +15,9 @@ namespace WebRocket.Client {
 
     public bool IsOpen => mSocket.State == WebSocketState.Open;
 
-    public async Task<bool> ConnectAsync(Uri uri, CancellationToken token) {
-      try {
-        mSocket = mBuilder.Build();
-        await mSocket.ConnectAsync(uri, token);
-        return true;
-      } catch (WebSocketException) { }
-
-      return false;
+    public async Task ConnectAsync(Uri uri, CancellationToken token) {
+      mSocket = mBuilder.Build();
+      await mSocket.ConnectAsync(uri, token);
     }
 
     public async Task<RocketResult> ReceiveStreamAsync(MemoryStream stream, CancellationToken token) {
