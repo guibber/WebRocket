@@ -56,7 +56,7 @@ namespace WebRocketTests.Server {
     }
 
     [Test]
-    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketWhenRunsAsyschronouslyAsync() {
+    public async Task TestStartAcceptingAsyncContinuesOnExceptionInHandleNewRocketWhenRunsAsynchronouslyAsync() {
       var callCount = 0;
       var source = new CancellationTokenSource();
       const string address = "address";
@@ -150,7 +150,7 @@ namespace WebRocketTests.Server {
       mHttpListener = Mock<IHttpListerner>();
       mAcceptor = new Mock<IRocketAcceptor>();
       mListenerContext = Mock<IHttpListenerContext>();
-      mObserver = Mock<IObserver>(); // new TestObserver();
+      mObserver = Mock<IObserver>();
       mListener = new RocketListener(mHttpListener.Object, mAcceptor.Object, mObserver.Object);
     }
 
