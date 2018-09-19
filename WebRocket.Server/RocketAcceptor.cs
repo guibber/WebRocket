@@ -22,6 +22,6 @@ namespace WebRocket.Server {
       } catch { }
     }
 
-    private static readonly byte[] _ErrorBytes = Encoding.UTF8.GetBytes("Internal Processing Error");
+    private static readonly byte[] _ErrorBytes = Encoding.UTF8.GetBytes("Internal Server Error");
   }
 }

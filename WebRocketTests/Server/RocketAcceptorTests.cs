@@ -26,7 +26,7 @@ namespace WebRocketTests.Server {
     [Test]
     public void TestAcceptAsyncSetsResponseAndThrowsOnException() {
       var response = Mock<IHttpListenerResponse>();
-      var buffer = new byte[25];
+      var buffer = new byte[21];
       using (var stream = new MemoryStream(buffer)) {
         mListenerContext
           .Setup(m => m.AcceptWebSocketAsync())
@@ -34,11 +34,11 @@ namespace WebRocketTests.Server {
         mListenerContext
           .SetupGet(m => m.Response)
           .Returns(response.Object);
-        response.SetupSet(m => m.ContentLength64 = 25);
+        response.SetupSet(m => m.ContentLength64 = 21);
         response.SetupSet(m => m.StatusCode = 500);
         response.SetupGet(m => m.OutputStream).Returns(stream);
         Assert.ThrowsAsync<Exception>(async () => await mAcceptor.AcceptAsync(mListenerContext.Object));
-        Assert.That(Encoding.UTF8.GetString(buffer), Is.EqualTo("Internal Processing Error"));
+        Assert.That(Encoding.UTF8.GetString(buffer), Is.EqualTo("Internal Server Error"));
         Assert.False(stream.CanWrite);
         Assert.False(stream.CanRead);
       }

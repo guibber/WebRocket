@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using WebRocket.Client;
 using WebRocket.Server;
@@ -36,8 +39,9 @@ namespace WebRocketTests {
       Finishes.Add(id);
       mFinishesLock.Release();
     }
-    private readonly SemaphoreSlim mStartsLock;
+
     private readonly SemaphoreSlim mFinishesLock;
+    private readonly SemaphoreSlim mStartsLock;
   }
 
   [TestFixture]
@@ -104,6 +108,17 @@ namespace WebRocketTests {
       Assert.AreEqual(mHandlerMonitor.Starts.First(), mHandlerMonitor.Finishes.Last());
     }
 
+    [Test]
+    public async Task TestRegularHttpConnectionGetsException() {
+      var source = new CancellationTokenSource();
+      source.CancelAfter(1000);
+      var client = new HttpClient();
+      var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                                                                   new Uri("http://localhost:9090/Test/")),
+                                            source.Token);
+      Assert.AreEqual("Internal Server Error", await response.Content.ReadAsStringAsync());
+    }
+
     [SetUp]
     public void DoSetup() {
       mSource = new CancellationTokenSource();
@@ -117,6 +132,7 @@ namespace WebRocketTests {
                                                                                          await rocket.SendStreamAsync(stream, token);
                                                                                          await rocket.ReceiveStreamAsync(stream, token);
                                                                                        }
+
                                                                                        await mHandlerMonitor.FinishHandle(id, token);
                                                                                      }, mSource.Token).GetAwaiter();
     }
@@ -135,13 +151,14 @@ namespace WebRocketTests {
     private static async Task ExecuteConnectTransferAndClose(int delayPostConnect, CancellationToken token) {
       var buffer = Encoding.UTF8.GetBytes("hello");
       var rocket = ClientRocketBuilder.Build();
-      Assert.True(await rocket.ConnectAsync(new Uri("ws://localhost:9090/Test/"), token));
+      await rocket.ConnectAsync(new Uri("ws://localhost:9090/Test/"), token);
       await Task.Delay(delayPostConnect, token);
       Assert.That(await rocket.SendStreamAsync(new MemoryStream(buffer, 0, buffer.Length, false, true), token), Is.EqualTo(new RocketResult()));
       using (var stream = new MemoryStream()) {
         await rocket.ReceiveStreamAsync(stream, token);
         Assert.That(stream.GetBuffer().Take(buffer.Length), Is.EqualTo(buffer));
       }
+
       await rocket.CloseAsync(token);
     }
 
